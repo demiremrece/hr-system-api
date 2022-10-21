@@ -1,0 +1,11 @@
+{
+  "name": "hr-system-api",
+  "version": "1.0.0",
+  "description": "Project aim is to connect to one HR System API, combine some information from there and make it available as a new internal endpoint.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Emre Demir",
+  "license": "ISC"
+}
