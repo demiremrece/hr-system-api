@@ -1,9 +1,16 @@
 const fetch = require('node-fetch');
 const Response = require('../common/response');
+const Cache = require('../common/cache');
 
 const getById = async (req, res) => {
   try {
     const { id } = req.params;
+
+    const cachedCourses = Cache.getInstance().get('courses');
+    if (cachedCourses[id]) {
+      const coursesCached = Cache.getInstance().get('courses');
+      return res.json(Response.success(coursesCached[id]));
+    }
 
     // Fetch the course
     const courseResponse = await fetch(`${process.env.LEPAYA_EXTERNAL_API_URL}/api/courses/${id}`)
@@ -17,7 +24,7 @@ const getById = async (req, res) => {
     const course = { ...courseResponse };
     delete course.trainerId;
 
-    // Fetch trainer
+    // Fetch the trainer
     const trainer = await fetch(`${process.env.LEPAYA_EXTERNAL_API_URL}/api/trainers/${courseResponse.trainerId}`)
       .then((response) => response.json());
 
@@ -34,6 +41,9 @@ const getById = async (req, res) => {
     await Promise.all(learnersFetchPromiseArray).then(((responses) => {
       course.learners = responses;
     }));
+
+    cachedCourses[id] = course;
+    Cache.getInstance().set('courses', cachedCourses);
 
     return res.json(Response.success(course));
   } catch (error) {
